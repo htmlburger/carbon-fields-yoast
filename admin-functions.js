@@ -18,7 +18,7 @@
 		/*
 		 * Change this value to update the frequency at which the readability is checked
 		 */
-		this.refreshInterval = 2000;
+		this.refreshInterval = 300;
 
 		/*
 		 * Add/remove types of fields you wish to ignore to this array
