@@ -1,5 +1,20 @@
 (function($) {
 	var CarbonYoast = function() {
+		this.carbonFieldsVersion;
+
+		if (window.hasOwnProperty('cf')) {
+			this.carbonFieldsVersion = 3;
+		} else if (window.hasOwnProperty('carbonFields')) {
+			this.carbonFieldsVersion = 2;
+		}
+
+		// carbon fields probably isn't loaded
+		if (this.carbonFieldsVersion === undefined) {
+			return;
+		}
+
+		this.additionalContent = '';
+
 		/*
 		 * Change this value to update the frequency at which the readability is checked
 		 */
@@ -42,18 +57,30 @@
 	CarbonYoast.prototype.init = function() {
 		var _self = this;
 
-		var additionalContent = '';
+		_self.invokeUpdate();
 
-		setInterval(function () {
-			additionalContent = _self.getAdditionalContent();
+		if (_self.carbonFieldsVersion === 3) {
 
-			YoastSEO.app.refresh();
-		}, _self.refreshInterval);
+			window.cf.vendor['@wordpress/data'].subscribe(lodash.debounce(function () {
+
+				_self.invokeUpdate();
+
+			}, this.refreshInterval));
+
+		} else if (_self.carbonFieldsVersion === 2) {
+
+			$(document).on('carbonFields.fieldUpdated', lodash.debounce(function () {
+
+				_self.invokeUpdate();
+
+			}, this.refreshInterval));
+
+		}
 
 		YoastSEO.app.pluginReady('CarbonYoastPlugin');
 
 		YoastSEO.app.registerModification('content', function (content) {
-			return content + ' ' + additionalContent;
+			return content + ' ' + _self.additionalContent;
 		}, 'CarbonYoastPlugin', 5);
 	};
 
@@ -73,7 +100,13 @@
 		return fieldContent;
 	};
 
-	CarbonYoast.prototype.getAdditionalContent = function (fields) {
+	CarbonYoast.prototype.invokeUpdate = function () {
+		this.additionalContent = this.getAdditionalContent();
+
+		YoastSEO.app.refresh();
+	};
+
+	CarbonYoast.prototype.getAdditionalContent = function () {
 		var _self = this;
 		var fieldsContentParts = [];
 
