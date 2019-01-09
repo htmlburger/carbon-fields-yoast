@@ -1,18 +1,14 @@
 (function($) {
 	var CarbonYoast = function() {
-		YoastSEO.app.registerPlugin('CarbonYoastPlugin', {status: 'ready'});
-
-		this.getData();
-	};
-
-	CarbonYoast.prototype.getData = function() {
-		var _self = this;
-		var additionalContent = '';
+		/*
+		 * Change this value to update the frequency at which the readability is checked
+		 */
+		this.refreshInterval = 2000;
 
 		/*
-		 * Add types of fields you wish to ignore to this array
+		 * Add/remove types of fields you wish to ignore to this array
 		 */
-		var fieldsByTypeToExclude = [
+		this.fieldsByTypeToExclude = [
 			'association',
 			'file',
 			'map',
@@ -35,46 +31,70 @@
 		/*
 		 * Add names of fields you wish to ignore to this array
 		 */
-		var fieldsByNameToExclude = [
+		this.fieldsByNameToExclude = [
 		];
 
-		window.cf.vendor['@wordpress/data'].subscribe(lodash.debounce(function() {
-			var fieldsContent = [];
+		YoastSEO.app.registerPlugin('CarbonYoastPlugin', {status: 'ready'});
 
-			var fields = window.cf.vendor['@wordpress/data'].select('carbon-fields/metaboxes').getFields();
-			$.each(fields, function (index, field) {
-				if (fieldsByTypeToExclude.indexOf(field.type) !== -1) {
-					return;
-				}
+		this.init();
+	};
 
-				if (fieldsByNameToExclude.indexOf(field.base_name) !== -1) {
-					return;
-				}
+	CarbonYoast.prototype.init = function() {
+		var _self = this;
 
-				var fieldContent;
-				if ($(field.value).length) {
-					fieldContent = $(field.value).text();
-				} else {
-					fieldContent = field.value;
-				}
-
-				fieldsContent.push(fieldContent);
-			});
-
-			additionalContent = fieldsContent.join(' ');
-		}, 1000));
+		var additionalContent = '';
 
 		setInterval(function () {
+			additionalContent = _self.getAdditionalContent();
+
 			YoastSEO.app.refresh();
-		}, 1000);
+		}, _self.refreshInterval);
 
 		YoastSEO.app.pluginReady('CarbonYoastPlugin');
+
 		YoastSEO.app.registerModification('content', function (content) {
 			return content + ' ' + additionalContent;
 		}, 'CarbonYoastPlugin', 5);
 	};
 
+	CarbonYoast.prototype.shouldSkipField = function (field) {
+		return this.fieldsByTypeToExclude.indexOf(field.type) !== -1 || this.fieldsByNameToExclude.indexOf(field.base_name) !== -1
+	};
+
+	CarbonYoast.prototype.getFieldContent = function (field) {
+		var fieldContent;
+
+		if (field.type === 'rich_text') {
+			fieldContent = $(field.value).text();
+		} else {
+			fieldContent = field.value;
+		}
+
+		return fieldContent;
+	};
+
+	CarbonYoast.prototype.getAdditionalContent = function (fields) {
+		var _self = this;
+		var fieldsContentParts = [];
+
+		var fields;
+		if (window.hasOwnProperty('cf')) {
+			// Carbon Fields 3.x
+			fields = window.cf.vendor['@wordpress/data'].select('carbon-fields/metaboxes').getFields();
+		} else {
+			// Carbon Fields 2.x
+			fields = window.carbonFields.api.store.getState().fields;
+		}
+
+		$.each(fields, function (index, field) {
+			fieldsContentParts.push(_self.getFieldContent(field));
+		});
+
+		return fieldsContentParts.join(' ');
+	};
+
 	$(window).on('YoastSEO:ready', function () {
+		console.log('called');
 		var wordCount = new CarbonYoast();
 	});
 
