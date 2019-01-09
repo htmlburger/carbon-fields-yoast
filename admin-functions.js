@@ -1,34 +1,81 @@
 (function($) {
+	var CarbonYoast = function() {
+		YoastSEO.app.registerPlugin('CarbonYoastPlugin', {status: 'ready'});
 
-    var MyYoastPlugin = function()
-    {
-        YoastSEO.app.registerPlugin('myYoastPlugin', {status: 'loading'});
+		this.getData();
+	};
 
-        this.getData();
-    };
+	CarbonYoast.prototype.getData = function() {
+		var _self = this;
+		var additionalContent = '';
 
-    MyYoastPlugin.prototype.getData = function()
-    {
+		/*
+		 * Add types of fields you wish to ignore to this array
+		 */
+		var fieldsByTypeToExclude = [
+			'association',
+			'file',
+			'map',
+			'checkbox',
+			'color',
+			'date',
+			'date_time',
+			'gravity_form',
+			'hidden',
+			'html',
+			'image',
+			'media_gallery',
+			'multiselect',
+			'set',
+			'separator',
+			'select',
+			'time'
+		];
 
-        var _self = this,
-            $text = $('#acf-field-yoast_text');
+		/*
+		 * Add names of fields you wish to ignore to this array
+		 */
+		var fieldsByNameToExclude = [
+		];
 
-        _self.custom_content = $text.val();
+		window.cf.vendor['@wordpress/data'].subscribe(lodash.debounce(function() {
+			var fieldsContent = [];
 
-        YoastSEO.app.pluginReady('myYoastPlugin');
+			var fields = window.cf.vendor['@wordpress/data'].select('carbon-fields/metaboxes').getFields();
+			$.each(fields, function (index, field) {
+				if (fieldsByTypeToExclude.indexOf(field.type) !== -1) {
+					return;
+				}
 
-        YoastSEO.app.registerModification('content', $.proxy(_self.getCustomContent, _self), 'myYoastPlugin', 5);
+				if (fieldsByNameToExclude.indexOf(field.base_name) !== -1) {
+					return;
+				}
 
-    };
+				var fieldContent;
+				if ($(field.value).length) {
+					fieldContent = $(field.value).text();
+				} else {
+					fieldContent = field.value;
+				}
 
-    MyYoastPlugin.prototype.getCustomContent = function (content)
-    {
-      var mceid = $('#acf-yoast_fancyeditor textarea').prop('id');
-      return this.custom_content + tinymce.editors[mceid].getContent() + content;
-    };
+				fieldsContent.push(fieldContent);
+			});
 
-    $(window).on('YoastSEO:ready', function ()
-    {
-      new MyYoastPlugin();
-    });
+			additionalContent = fieldsContent.join(' ');
+		}, 1000));
+
+		setInterval(function () {
+			YoastSEO.app.refresh();
+		}, 1000);
+
+		YoastSEO.app.pluginReady('CarbonYoastPlugin');
+		YoastSEO.app.registerModification('content', function (content) {
+			return content + ' ' + additionalContent;
+		}, 'CarbonYoastPlugin', 5);
+	};
+
+	$(window).on('YoastSEO:ready', function () {
+		var wordCount = new CarbonYoast();
+	});
+
 })(jQuery);
