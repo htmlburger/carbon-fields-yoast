@@ -94,8 +94,7 @@
 	};
 
 	$(window).on('YoastSEO:ready', function () {
-		console.log('called');
-		var wordCount = new CarbonYoast();
+		var carbonYoast = new CarbonYoast();
 	});
 
 })(jQuery);
