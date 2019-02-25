@@ -31,7 +31,7 @@ class Carbon_Fields_Yoast {
 		wp_enqueue_script(
 			'carbon-fields-yoast',
 			\Carbon_Fields_Yoast\URL . '/js/carbon-fields-yoast.js',
-			[ 'carbon-fields-core' ],
+			array( 'carbon-fields-core' ),
 			\Carbon_Fields_Yoast\VERSION
 		);
 	}
