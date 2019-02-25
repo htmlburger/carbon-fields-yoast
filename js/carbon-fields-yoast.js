@@ -1,5 +1,6 @@
-(function($) {
-	var CarbonYoast = function() {
+var CarbonFieldsYoast = (function($) {
+
+	var CarbonFieldsYoast = function(params) {
 		this.carbonFieldsVersion;
 
 		if (window.hasOwnProperty('cf')) {
@@ -15,15 +16,15 @@
 
 		this.additionalContent = '';
 
-		/*
+		/**
 		 * Change this value to update the frequency at which the readability is checked
 		 */
-		this.refreshInterval = 300;
+		this.refreshInterval = params.refreshInterval || 300;
 
-		/*
+		/**
 		 * Add/remove types of fields you wish to ignore to this array
 		 */
-		this.fieldsByTypeToExclude = [
+		this.fieldsByTypeToExclude = params.fieldsByTypeToExclude || [
 			'association',
 			'file',
 			'map',
@@ -43,18 +44,19 @@
 			'time'
 		];
 
-		/*
+		/**
 		 * Add names of fields you wish to ignore to this array
 		 */
-		this.fieldsByNameToExclude = [
-		];
+		this.fieldsByNameToExclude = this.fieldsByNameToExclude || [];
 
-		YoastSEO.app.registerPlugin('CarbonYoastPlugin', {status: 'ready'});
+		YoastSEO.app.registerPlugin('CarbonFieldsYoastPlugin', {
+			status: 'ready'
+		});
 
 		this.init();
-	};
+	}
 
-	CarbonYoast.prototype.init = function() {
+	CarbonFieldsYoast.prototype.init = function() {
 		var _self = this;
 
 		_self.invokeUpdate();
@@ -77,18 +79,18 @@
 
 		}
 
-		YoastSEO.app.pluginReady('CarbonYoastPlugin');
+		YoastSEO.app.pluginReady('CarbonFieldsYoastPlugin');
 
 		YoastSEO.app.registerModification('content', function (content) {
 			return content + ' ' + _self.additionalContent;
-		}, 'CarbonYoastPlugin', 5);
+		}, 'CarbonFieldsYoastPlugin', 5);
 	};
 
-	CarbonYoast.prototype.shouldSkipField = function (field) {
+	CarbonFieldsYoast.prototype.shouldSkipField = function (field) {
 		return this.fieldsByTypeToExclude.indexOf(field.type) !== -1 || this.fieldsByNameToExclude.indexOf(field.base_name) !== -1
 	};
 
-	CarbonYoast.prototype.getFieldContent = function (field) {
+	CarbonFieldsYoast.prototype.getFieldContent = function (field) {
 		var fieldContent;
 
 		if (field.type === 'rich_text') {
@@ -100,13 +102,13 @@
 		return fieldContent;
 	};
 
-	CarbonYoast.prototype.invokeUpdate = function () {
+	CarbonFieldsYoast.prototype.invokeUpdate = function () {
 		this.additionalContent = this.getAdditionalContent();
 
 		YoastSEO.app.refresh();
 	};
 
-	CarbonYoast.prototype.getAdditionalContent = function () {
+	CarbonFieldsYoast.prototype.getAdditionalContent = function () {
 		var _self = this;
 		var fieldsContentParts = [];
 
@@ -126,8 +128,6 @@
 		return fieldsContentParts.join(' ');
 	};
 
-	$(window).on('YoastSEO:ready', function () {
-		var carbonYoast = new CarbonYoast();
-	});
+	return CarbonFieldsYoast;
 
 })(jQuery);

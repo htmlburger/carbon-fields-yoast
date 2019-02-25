@@ -1,0 +1,9 @@
+{
+	"name": "htmlburger/carbon-fields-yoast",
+	"description": "Helper library that allows developers to choose which fields from Carbon Fields to include in the Yoast readability score meter",
+	"autoload": {
+        "psr-4": {
+            "Carbon_Fields_Yoast\\": "core/"
+        }
+    }
+}
