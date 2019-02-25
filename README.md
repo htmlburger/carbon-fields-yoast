@@ -13,6 +13,13 @@ composer require htmlburger/carbon-fields-yoast
 In `functions.php`, add the following:
 
 ```php
+add_action( 'after_setup_theme', 'crb_setup_theme' );
+function crb_setup_theme() {
+	include_once __DIR__ . '/vendor/autoload.php';
+
+	new \Carbon_Fields_Yoast\Carbon_Fields_Yoast;
+}
+
 add_action( 'admin_enqueue_scripts', 'crb_enqueue_admin_scripts' );
 function crb_enqueue_admin_scripts() {
 	wp_enqueue_script( 'crb-admin', get_stylesheet_directory_uri() . '/js/admin.js', array( 'carbon-fields-yoast' ) );
