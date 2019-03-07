@@ -1,6 +1,8 @@
 var CarbonFieldsYoast = (function($) {
 
 	var CarbonFieldsYoast = function(params) {
+		params = params || {};
+
 		this.carbonFieldsVersion;
 
 		if (window.hasOwnProperty('cf')) {
@@ -47,7 +49,7 @@ var CarbonFieldsYoast = (function($) {
 		/**
 		 * Add names of fields you wish to ignore to this array
 		 */
-		this.fieldsByNameToExclude = this.fieldsByNameToExclude || [];
+		this.fieldsByNameToExclude = params.fieldsByNameToExclude || [];
 
 		YoastSEO.app.registerPlugin('CarbonFieldsYoastPlugin', {
 			status: 'ready'
@@ -91,15 +93,7 @@ var CarbonFieldsYoast = (function($) {
 	};
 
 	CarbonFieldsYoast.prototype.getFieldContent = function (field) {
-		var fieldContent;
-
-		if (field.type === 'rich_text') {
-			fieldContent = $(field.value).text();
-		} else {
-			fieldContent = field.value;
-		}
-
-		return fieldContent;
+		return field.value;
 	};
 
 	CarbonFieldsYoast.prototype.invokeUpdate = function () {
@@ -122,6 +116,12 @@ var CarbonFieldsYoast = (function($) {
 		}
 
 		$.each(fields, function (index, field) {
+			// we can skip complex fields, as their children are
+			// already present in the main fields array
+			if (field.type === 'complex') {
+				return;
+			}
+
 			fieldsContentParts.push(_self.getFieldContent(field));
 		});
 
