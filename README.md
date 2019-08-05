@@ -13,8 +13,8 @@ composer require htmlburger/carbon-fields-yoast
 In `functions.php`, add the following:
 
 ```php
-add_action( 'after_setup_theme', 'crb_setup_theme' );
-function crb_setup_theme() {
+add_action( 'after_setup_theme', 'crb_initialize_carbon_yoast' );
+function crb_initialize_carbon_yoast() {
 	include_once __DIR__ . '/vendor/autoload.php';
 
 	new \Carbon_Fields_Yoast\Carbon_Fields_Yoast;
