@@ -28,11 +28,14 @@ class Carbon_Fields_Yoast {
 	 * @return void
 	 */
 	public function enqueue_assets() {
+		$isDevelopment = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG;
+
 		wp_enqueue_script(
 			'carbon-fields-yoast',
-			\Carbon_Fields_Yoast\URL . '/js/carbon-fields-yoast.js',
+			\Carbon_Fields_Yoast\URL . '/dist/carbon-fields-yoast' . ($isDevelopment ? '' : '.min') . '.js',
 			array( 'carbon-fields-core' ),
-			\Carbon_Fields_Yoast\VERSION
+			\Carbon_Fields_Yoast\VERSION,
+			true
 		);
 	}
 }

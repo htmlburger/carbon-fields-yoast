@@ -2,6 +2,8 @@ vendor*
 
 node_modules*
 
+dist/
+
 .DS_Store
 .DS_Store?
 ._*
@@ -9,4 +11,3 @@ node_modules*
 .Trashes
 ehthumbs.db
 Thumbs.db
-package-lock.json

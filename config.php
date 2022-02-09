@@ -6,7 +6,7 @@ use Carbon_Fields;
 
 // Define version constant
 if ( ! defined( __NAMESPACE__ . '\VERSION' ) ) {
-	define( __NAMESPACE__ . '\VERSION', '1.0.0' );
+	define( __NAMESPACE__ . '\VERSION', '2.0.0-alpha.1' );
 }
 
 // Define root directory
